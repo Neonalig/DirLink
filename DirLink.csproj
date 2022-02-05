@@ -5,6 +5,8 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <StartupObject>DirLink.App</StartupObject>
+    <ApplicationIcon>Resources\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,12 +21,26 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".gitignore" />
+    <None Remove=".gitmodules" />
+    <None Remove="Resources\Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\Icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="MVVMUtils\MVVMUtils.csproj" />
     <ProjectReference Include="wpfui\WPFUI\WPFUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icon.ico" />
   </ItemGroup>
 
 </Project>

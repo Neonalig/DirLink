@@ -17,8 +17,8 @@ namespace DirLink.Views.Pages;
 /// <summary>
 /// Interaction logic for LinkerPage.xaml
 /// </summary>
-public partial class LinkerPage : Page {
-    public LinkerPage() {
+public partial class LinkerCreatorPage : Page {
+    public LinkerCreatorPage() {
         InitializeComponent();
     }
 }
