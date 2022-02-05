@@ -13,12 +13,12 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace DirLink;
+namespace DirLink.Views.Pages;
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Interaction logic for LinkerPage.xaml
 /// </summary>
-public partial class MainWindow : Window {
-    public MainWindow() {
+public partial class LinkerPage : Page {
+    public LinkerPage() {
         InitializeComponent();
     }
 }
