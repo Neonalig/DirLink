@@ -1,0 +1,6 @@
+[submodule "wpfui"]
+	path = wpfui
+	url = https://github.com/starflash-studios/wpfui
+[submodule "MVVMUtils"]
+	path = MVVMUtils
+	url = https://github.com/starflash-studios/MVVMUtils
