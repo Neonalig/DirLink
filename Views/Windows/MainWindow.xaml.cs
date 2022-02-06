@@ -1,5 +1,8 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,7 +12,11 @@ using DirLink.Views.Pages;
 
 using JetBrains.Annotations;
 
+using WPFUI.Controls;
+using WPFUI.Controls.Interfaces;
+
 using DependsOnAttribute = PropertyChanged.DependsOnAttribute;
+using Icon = WPFUI.Common.Icon;
 
 namespace DirLink;
 
@@ -24,6 +31,8 @@ public partial class MainWindow : INotifyPropertyChanged {
 
         Bd.Background = Background;
         Background = new SolidColorBrush(new Color { R = 0, G = 0, B = 0, A = 0 });
+
+        //Nav.Items = LinkerPageNavItems;
     }
 
     /// <summary>
@@ -50,6 +59,17 @@ public partial class MainWindow : INotifyPropertyChanged {
     public Page CurrentPage { get; set; }
 
     /// <summary>
+    /// Gets the navigation items for pre-existing linkers.
+    /// </summary>
+    /// <value>
+    /// The pre-existing linker navigation items.
+    /// </value>
+    [SuppressMessage("Style", "IDE0002", Justification = "Simplified member access collision with non-static reference name.")]
+    public ObservableCollection<INavigationItem> LinkerPageNavItems { get; } = new ObservableCollection<INavigationItem> {
+        CtoHelper.GetNavigationItem<LinkerCreatorPage>("Games", WPFUI.Common.Icon.Games48)
+    };
+
+    /// <summary>
     /// Occurs when a property value changes.
     /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -64,4 +84,26 @@ public partial class MainWindow : INotifyPropertyChanged {
     void Nav_Navigated( object Sender, RoutedEventArgs E ) {
         Debug.WriteLine($"Navigated on {Sender} w/ args {E}.");
     }
+}
+
+public static class CtoHelper {
+
+    /// <summary>
+    /// Constructs a <see cref="INavigationItem"/> with the specified <paramref name="Title"/>, <paramref name="Icon"/> and <paramref name="PageType"/>.
+    /// </summary>
+    /// <param name="Title">The title for the navigation item.</param>
+    /// <param name="Icon">The icon that appears next to the title.</param>
+    /// <param name="PageType">The type of the page that the frame should be navigated to when the navigation item is clicked.</param>
+    /// <returns>A new <see cref="NavigationItem"/> instance.</returns>
+    [SuppressMessage("Style", "IDE0071:Simplify interpolation", Justification = "ToString() call prevents boxing.")]
+    public static INavigationItem GetNavigationItem( string Title, Icon Icon, Type PageType ) => new NavigationItem {
+        Content = Title,
+        Tag = $"linker{Title.GetHashCode().ToString()}",
+        Icon = Icon,
+        Type = PageType
+    };
+
+    /// <inheritdoc cref="GetNavigationItem(string, Icon, Type)"/>
+    /// <typeparam name="T">The type of the page that the frame should be navigated to when the navigation item is clicked.</typeparam>
+    public static INavigationItem GetNavigationItem<T>( string Title, Icon Icon ) where T : Page => GetNavigationItem(Title, Icon, typeof(T)); 
 }
