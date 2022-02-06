@@ -15,7 +15,11 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox Grid.Column="0" Text="{Binding UserText, Mode=TwoWay}" />
+        <TextBox
+            Grid.Column="0"
+            KeyDown="TextBox_KeyDown"
+            PreviewKeyDown="TextBox_PreviewKeyDown"
+            Text="{Binding UserText, Mode=TwoWay}" />
         <Button Grid.Column="1" VerticalAlignment="Stretch">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">

@@ -13,6 +13,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DirLink;
 
@@ -126,4 +129,19 @@ public static class Extensions {
     /// <returns><paramref name="Val"/> if <see langword="true"/>; otherwise <see langword="null"/>/<see langword="default"/> if not.</returns>
     [return: NotNullIfNotNull("Val")]
     public static T? Return<T>( this bool Attempt, T? Val ) => Attempt ? Val : default;
+
+    /// <summary>
+    /// Removes the keyboard focus from the given dependency object.
+    /// </summary>
+    /// <param name="Sender">The sender.</param>
+    /// <param name="KillLogical">If <see langword="true" />, logical focus is revoked.</param>
+    /// <param name="ClearKeyboard">If <see langword="true" />, keyboard focus is revoked.</param>
+    public static void RemoveFocus( this DependencyObject Sender, bool KillLogical = true, bool ClearKeyboard = true ) {
+        if ( KillLogical ) {
+            FocusManager.SetFocusedElement(FocusManager.GetFocusScope(Sender), null);
+        }
+        if ( ClearKeyboard ) {
+            Keyboard.ClearFocus();
+        }
+    }
 }

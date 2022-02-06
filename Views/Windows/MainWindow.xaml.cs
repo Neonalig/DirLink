@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -12,11 +11,9 @@ using DirLink.Views.Pages;
 
 using JetBrains.Annotations;
 
-using WPFUI.Controls;
 using WPFUI.Controls.Interfaces;
 
 using DependsOnAttribute = PropertyChanged.DependsOnAttribute;
-using Icon = WPFUI.Common.Icon;
 
 namespace DirLink;
 
@@ -76,43 +73,4 @@ public partial class MainWindow : INotifyPropertyChanged {
     void Nav_Navigated( object Sender, RoutedEventArgs E ) {
         Debug.WriteLine($"Navigated on {Sender} w/ args {E}.");
     }
-}
-
-public static class CtoHelper {
-
-    /// <summary>
-    /// Constructs a <see cref="INavigationItem"/> with the specified <paramref name="Title"/>, <paramref name="Icon"/> and <paramref name="PageType"/>.
-    /// </summary>
-    /// <param name="Title">The title for the navigation item.</param>
-    /// <param name="Icon">The icon that appears next to the title.</param>
-    /// <param name="PageType">The type of the page that the frame should be navigated to when the navigation item is clicked.</param>
-    /// <returns>A new <see cref="NavigationItem"/> instance.</returns>
-    [SuppressMessage("Style", "IDE0071:Simplify interpolation", Justification = "ToString() call prevents boxing.")]
-    public static NavigationItem GetNavigationItem( string Title, Icon Icon, Type PageType ) => new NavigationItem {
-        Content = Title,
-        Tag = $"linker{Title.GetHashCode().ToString()}",
-        Icon = Icon,
-        Type = PageType
-    };
-
-    /// <inheritdoc cref="GetNavigationItem(string, Icon, Type)"/>
-    /// <typeparam name="T">The type of the page that the frame should be navigated to when the navigation item is clicked.</typeparam>
-    public static NavigationItem GetNavigationItem<T>( string Title, Icon Icon ) where T : Page => GetNavigationItem(Title, Icon, typeof(T));
-
-    /// <summary>
-    /// Invokes the modification method with the specified <paramref name="Item"/>, then returns the modified <paramref name="Item"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of item to modify.</typeparam>
-    /// <param name="Item">The item to modify.</param>
-    /// <param name="Modification">The modification to apply to the item.</param>
-    /// <returns>The <paramref name="Item"/>.</returns>
-    public static T Modify<T>(this T Item, Action<T> Modification) {
-        Modification(Item);
-        return Item;
-    }
-
-    /// <inheritdoc cref="Modify{T}(T, Action{T})"/>
-    /// <typeparam name="TIn">The type of item to modify.</typeparam>
-    /// <typeparam name="TOut">The new type after the modification.</typeparam>
-    public static TOut ChainModify<TIn, TOut>( this TIn Item, Func<TIn, TOut> Modification ) => Modification(Item);
 }

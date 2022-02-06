@@ -1,28 +1,19 @@
-﻿using System.ComponentModel;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Runtime.CompilerServices;
-
-using JetBrains.Annotations;
-
-using PropertyChanged;
+using System.Reflection;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace DirLink.Views.Controls;
 /// <summary>
 /// Interaction logic for FolderSystemInfoPicker.xaml
 /// </summary>
-public partial class FolderPicker : INotifyPropertyChanged {
+public partial class FolderPicker {
     public FolderPicker() {
         InitializeComponent();
         DataContext = this;
-        PropertyChanged += ( S, E ) => {
-            switch ( E.PropertyName ) {
-                case nameof(UserText):
-                    FolderPicker FP = S.AsNotNull<FolderPicker>();
-                    FP.Pth = TryGetFolder(FP.UserText, out DirectoryInfo? Dl).Return(Dl);
-                    break;
-            }
-        };
     }
 
     /// <summary>
@@ -42,39 +33,134 @@ public partial class FolderPicker : INotifyPropertyChanged {
     }
 
     /// <summary>
+    /// Occurs when the <see cref="UserText"/> property is changed.
+    /// </summary>
+    public event CtoHelper.DependencyPropertyChangedCallback<FolderPicker, string>? UserTextChanged;
+
+    /// <summary>
     /// Gets or sets the user text.
     /// </summary>
     /// <value>
     /// The user text.
     /// </value>
-    public string UserText { get; set; } = string.Empty;
-
-    DirectoryInfo? Pth { get; set; }
+    public string UserText {
+        get => (string)GetValue(UserTextProperty);
+        set => SetValue(UserTextProperty, value);
+    }
 
     /// <summary>
-    /// Gets or sets the user-selected path.
+    /// Dependency property for <see cref="UserText"/>.
+    /// </summary>
+    public static readonly DependencyProperty UserTextProperty = CtoHelper.RegisterDependencyProperty<FolderPicker, string>(nameof(UserText), string.Empty, UserTextPropertyChanged);
+    //DependencyProperty.Register(nameof(UserText), typeof(string), typeof(FolderPicker), new PropertyMetadata(string.Empty));
+
+    /// <summary>
+    /// Whether to ignore the next PropertyChanged callback as it occurred from an internal value synchronisation.
+    /// </summary>
+    bool _SetValueInternal = false;
+
+    /// <summary>
+    /// Raised when the <see cref="UserTextProperty"/> value is changed.
+    /// </summary>
+    /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
+    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
+    /// <param name="OldValue">The old value.</param>
+    /// <param name="NewValue">The new value.</param>
+    static void UserTextPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) {
+        Debug.WriteLine($"UserText changed on {S} to '{NewValue}'. Internal? {S._SetValueInternal}.");
+        if ( S._SetValueInternal ) { return; }
+        S._SetValueInternal = true;
+        S.Path = TryGetFolder(NewValue, out DirectoryInfo? DI).Return(DI);
+        S._SetValueInternal = false;
+        S.OnUserTextChanged(S, E, OldValue, NewValue);
+    }
+
+    /// <summary>
+    /// Called when the <see cref="UserText"/> property is changed.
+    /// </summary>
+    /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
+    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
+    /// <param name="OldValue">The old value.</param>
+    /// <param name="NewValue">The new value.</param>
+    protected virtual void OnUserTextChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) => UserTextChanged?.Invoke(S, E, OldValue, NewValue);
+
+    /// <summary>
+    /// Gets or sets the path.
     /// </summary>
     /// <value>
     /// The path.
     /// </value>
-    [DependsOn(nameof(Pth))]
     public DirectoryInfo? Path {
-        get => Pth;
-        set {
-            Pth = value;
-            UserText = value?.FullName ?? string.Empty;
+        get => (DirectoryInfo?)GetValue(PathProperty);
+        set => SetValue(PathProperty, value);
+    }
+
+    /// <summary>
+    /// Occurs when the <see cref="Path"/> property is changed.
+    /// </summary>
+    public event CtoHelper.DependencyPropertyChangedCallback<FolderPicker, DirectoryInfo?>? PathChanged;
+
+    /// <summary>
+    /// Dependency property for <see cref="Path"/>.
+    /// </summary>
+    public static readonly DependencyProperty PathProperty = CtoHelper.RegisterDependencyProperty<FolderPicker, DirectoryInfo?>(nameof(Path), null, PathPropertyChanged);
+    //DependencyProperty.Register(nameof(Path), typeof(DirectoryInfo), typeof(FolderPicker), new PropertyMetadata(null));
+
+    /// <summary>
+    /// Raised when the <see cref="PathProperty"/> value is changed.
+    /// </summary>
+    /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
+    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
+    /// <param name="OldValue">The old value.</param>
+    /// <param name="NewValue">The new value.</param>
+    static void PathPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, DirectoryInfo? OldValue, DirectoryInfo? NewValue ) {
+        Debug.WriteLine($"Path changed on {S} to '{NewValue?.FullName ?? "<null>"}'. Internal? {S._SetValueInternal}.");
+        if ( S._SetValueInternal ) { return; }
+        S._SetValueInternal = true;
+        S.UserText = NewValue?.FullName ?? string.Empty;
+        S._SetValueInternal = false;
+        S.OnPathChanged(S, E, OldValue, NewValue);
+    }
+
+    /// <summary>
+    /// Called when the <see cref="Path"/> property is changed.
+    /// </summary>
+    /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
+    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
+    /// <param name="OldValue">The old value.</param>
+    /// <param name="NewValue">The new value.</param>
+    protected virtual void OnPathChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, DirectoryInfo? OldValue, DirectoryInfo? NewValue ) => PathChanged?.Invoke(S, E, OldValue, NewValue);
+
+    /// <summary>
+    /// Occurs when the <see cref="UIElement.KeyDown"/> <see langword="event"/> is raised.
+    /// </summary>
+    /// <param name="Sender">The source of the <see langword="event"/>.</param>
+    /// <param name="E">The raised <see langword="event"/> arguments.</param>
+    void TextBox_KeyDown( object Sender, KeyEventArgs E ) {
+        TextBox Snd = (TextBox)Sender;
+        switch ( E.Key ) {
+            //Remove keyboard focus if enter is pressed and the textbox didn't already consume the event.
+            case Key.Enter:
+                Snd.RemoveFocus();
+                E.Handled = true;
+                break;
         }
     }
 
     /// <summary>
-    /// Occurs when a property value changes.
+    /// Occurs when the <see cref="UIElement.PreviewKeyDown"/> <see langword="event"/> is raised.
     /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
+    /// <param name="Sender">The source of the <see langword="event"/>.</param>
+    /// <param name="E">The raised <see langword="event"/> arguments.</param>
+    void TextBox_PreviewKeyDown( object Sender, KeyEventArgs E ) {
+        TextBox Snd = (TextBox)Sender;
+        switch ( E.Key ) {
+            //Remove keyboard focus if backspace is pressed when the textfield is empty.
+            case Key.Back when string.IsNullOrEmpty(Snd.Text):
+                Snd.RemoveFocus();
+                E.Handled = true;
+                break;
+        }
 
-    /// <summary>
-    /// Called when a property value is changed.
-    /// </summary>
-    /// <param name="PropertyName">The name of the property.</param>
-    [NotifyPropertyChangedInvocator]
-    protected virtual void OnPropertyChanged( [CallerMemberName] string? PropertyName = null ) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+    }
 }
