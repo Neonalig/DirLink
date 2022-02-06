@@ -26,7 +26,6 @@ namespace DirLink;
 public partial class MainWindow : INotifyPropertyChanged {
     public MainWindow() {
         InitializeComponent();
-        CurrentPage = new LinkerCreatorPage();
         DataContext = this;
 
         Bd.Background = Background;
@@ -51,14 +50,6 @@ public partial class MainWindow : INotifyPropertyChanged {
     }
 
     /// <summary>
-    /// Gets or sets the currently displayed page.
-    /// </summary>
-    /// <value>
-    /// The current page.
-    /// </value>
-    public Page CurrentPage { get; set; }
-
-    /// <summary>
     /// Gets the navigation items for pre-existing linkers.
     /// </summary>
     /// <value>
@@ -66,6 +57,7 @@ public partial class MainWindow : INotifyPropertyChanged {
     /// </value>
     [SuppressMessage("Style", "IDE0002", Justification = "Simplified member access collision with non-static reference name.")]
     public ObservableCollection<INavigationItem> LinkerPageNavItems { get; } = new ObservableCollection<INavigationItem> {
+        CtoHelper.GetNavigationItem<LinkerCreatorPage>("Create New Linker", WPFUI.Common.Icon.New24).Modify(NI => NI.Margin = new Thickness(0, 0, 0, 2)),
         CtoHelper.GetNavigationItem<LinkerCreatorPage>("Games", WPFUI.Common.Icon.Games48)
     };
 
@@ -96,7 +88,7 @@ public static class CtoHelper {
     /// <param name="PageType">The type of the page that the frame should be navigated to when the navigation item is clicked.</param>
     /// <returns>A new <see cref="NavigationItem"/> instance.</returns>
     [SuppressMessage("Style", "IDE0071:Simplify interpolation", Justification = "ToString() call prevents boxing.")]
-    public static INavigationItem GetNavigationItem( string Title, Icon Icon, Type PageType ) => new NavigationItem {
+    public static NavigationItem GetNavigationItem( string Title, Icon Icon, Type PageType ) => new NavigationItem {
         Content = Title,
         Tag = $"linker{Title.GetHashCode().ToString()}",
         Icon = Icon,
@@ -105,5 +97,22 @@ public static class CtoHelper {
 
     /// <inheritdoc cref="GetNavigationItem(string, Icon, Type)"/>
     /// <typeparam name="T">The type of the page that the frame should be navigated to when the navigation item is clicked.</typeparam>
-    public static INavigationItem GetNavigationItem<T>( string Title, Icon Icon ) where T : Page => GetNavigationItem(Title, Icon, typeof(T)); 
+    public static NavigationItem GetNavigationItem<T>( string Title, Icon Icon ) where T : Page => GetNavigationItem(Title, Icon, typeof(T));
+
+    /// <summary>
+    /// Invokes the modification method with the specified <paramref name="Item"/>, then returns the modified <paramref name="Item"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of item to modify.</typeparam>
+    /// <param name="Item">The item to modify.</param>
+    /// <param name="Modification">The modification to apply to the item.</param>
+    /// <returns>The <paramref name="Item"/>.</returns>
+    public static T Modify<T>(this T Item, Action<T> Modification) {
+        Modification(Item);
+        return Item;
+    }
+
+    /// <inheritdoc cref="Modify{T}(T, Action{T})"/>
+    /// <typeparam name="TIn">The type of item to modify.</typeparam>
+    /// <typeparam name="TOut">The new type after the modification.</typeparam>
+    public static TOut ChainModify<TIn, TOut>( this TIn Item, Func<TIn, TOut> Modification ) => Modification(Item);
 }

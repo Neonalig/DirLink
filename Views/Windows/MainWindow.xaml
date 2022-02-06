@@ -5,14 +5,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:dirLink="clr-namespace:DirLink"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:pages="clr-namespace:DirLink.Views.Pages"
     xmlns:wpfui="clr-namespace:WPFUI.Controls;assembly=WPFUI"
-    Title="MainWindow"
+    Title="DirLink"
     Width="800"
     Height="450"
     d:Background="Transparent"
     d:DataContext="{d:DesignInstance dirLink:MainWindow}"
     AllowsTransparency="True"
+    Icon="/Resources/Icon.ico"
     Style="{StaticResource UiWindowRounded}"
     WindowStyle="None"
     mc:Ignorable="d">
@@ -33,7 +33,11 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <wpfui:TitleBar Grid.Row="0" ApplicationNavigation="True" />
+            <wpfui:TitleBar
+                Title="{Binding Title, Mode=OneWay}"
+                Grid.Row="0"
+                ApplicationNavigation="True"
+                Icon="{Binding Icon, Mode=OneWay}" />
 
             <Grid Grid.Row="1" Margin="12,6,12,12">
                 <Grid.ColumnDefinitions>
@@ -41,34 +45,20 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
 
-                <Grid Grid.Column="0" Margin="0,0,12,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <wpfui:NavigationFluent
-                        Name="RootNav"
-                        Grid.Row="0"
-                        Frame="{Binding ElementName=NavFrame}"
-                        Navigated="Nav_Navigated">
-                        <wpfui:NavigationFluent.Items>
-                            <wpfui:NavigationItem
-                                Content="Create Directory Link"
-                                Icon="New24"
-                                Tag="directoryLinkCreator"
-                                Type="{x:Type pages:LinkerCreatorPage}" />
-                            <!--<common:NavItem Name="Games" Icon="Games48" />-->
-                        </wpfui:NavigationFluent.Items>
-                    </wpfui:NavigationFluent>
-                    <Separator Grid.Row="1" />
-                    <wpfui:NavigationFluent
-                        x:Name="Nav"
-                        Grid.Row="2"
-                        Frame="{Binding ElementName=NavFrame}"
-                        Items="{Binding LinkerPageNavItems}"
-                        Navigated="Nav_Navigated" />
-                </Grid>
+
+                <wpfui:NavigationFluent
+                    Name="Nav"
+                    Grid.Column="0"
+                    Margin="0,0,12,0"
+                    Frame="{Binding ElementName=NavFrame}"
+                    Items="{Binding LinkerPageNavItems}"
+                    Navigated="Nav_Navigated" />
+                <Rectangle
+                    Grid.Column="0"
+                    Height="1"
+                    Margin="5,37.25,17,0"
+                    VerticalAlignment="Top"
+                    Fill="{DynamicResource AccentFillColorDisabledBrush}" />
 
                 <Frame x:Name="NavFrame" Grid.Column="1">
                     <d:Frame.Content>

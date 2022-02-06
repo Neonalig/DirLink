@@ -2,6 +2,9 @@
     x:Class="DirLink.Views.Pages.LinkerCreatorPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:WPFUI.Controls;assembly=WPFUI"
+    xmlns:converters="clr-namespace:DirLink.Converters"
+    xmlns:ctrl="clr-namespace:DirLink.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:pages="clr-namespace:DirLink.Views.Pages"
@@ -11,10 +14,20 @@
     d:DesignWidth="530"
     Style="{StaticResource UiPage}"
     mc:Ignorable="d">
-    <Grid>
-        <Label
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            Content="This is a test page." />
-    </Grid>
+    <Page.Resources>
+        <converters:DirectoryInfoToStringConverter x:Key="DirToStrConv" UseFullName="False" />
+    </Page.Resources>
+    <SelectiveScrollingGrid Margin="50">
+        <SelectiveScrollingGrid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" />
+        </SelectiveScrollingGrid.RowDefinitions>
+        <controls:CardExpander
+            Margin="2"
+            d:Header="Some Folder"
+            Header="{Binding Destination, Converter={StaticResource DirToStrConv}, Mode=OneWay}">
+            <ctrl:FolderPicker Path="{Binding Destination, Mode=TwoWay}" />
+        </controls:CardExpander>
+    </SelectiveScrollingGrid>
 </Page>
