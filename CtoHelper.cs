@@ -9,17 +9,14 @@
 #endregion
 
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
-using DirLink.Views.Controls;
-
 using WPFUI.Controls;
 using WPFUI.Controls.Interfaces;
-
-using static DirLink.CtoHelper;
 
 using Icon = WPFUI.Common.Icon;
 
@@ -92,7 +89,7 @@ public static class CtoHelper {
     /// <param name="ValueName">The name of the value.</param>
     /// <param name="Callback">The callback.</param>
     /// <returns>A new <see cref="DependencyProperty"/>.</returns>
-    public static DependencyProperty RegisterDependencyProperty<TBase, TVal>( this TBase Base, TVal ValueReference, TVal DefaultValue, DependencyPropertyChangedCallback<TBase, TVal>? Callback = null, [CallerArgumentExpression("ValueReference")] string? ValueName = null ) where TBase : DependencyObject => RegisterDependencyProperty<TBase, TVal>(ValueName.CatchNull(), DefaultValue, Callback);
+    public static DependencyProperty RegisterDependencyProperty<TBase, TVal>( this TBase Base, TVal ValueReference, TVal DefaultValue, DependencyPropertyChangedCallback<TBase, TVal>? Callback = null, [CallerArgumentExpression("ValueReference")] string? ValueName = null ) where TBase : DependencyObject => RegisterDependencyProperty(ValueName.CatchNull(), DefaultValue, Callback);
 
     /// <summary>
     /// Gets a <see cref="PropertyChangedCallback"/> with a known value type.
@@ -116,4 +113,40 @@ public static class CtoHelper {
     /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
     public delegate void DependencyPropertyChangedCallback<in TBase, in TVal>( TBase D, DependencyPropertyChangedEventArgs E, TVal OldValue, TVal NewValue );
+
+    /// <summary>
+    /// Registers a <see cref="INotifyPropertyChanged.PropertyChanged"/> listener with a known type.
+    /// </summary>
+    /// <typeparam name="T">The base type.</typeparam>
+    /// <param name="Base">The base.</param>
+    /// <param name="TypedCallback">The typed callback.</param>
+    public static void RegisterPropertyChangedCallback<T>( this T Base, PropertyChanged<T> TypedCallback ) where T : INotifyPropertyChanged {
+        void PropertyChanged( object? S, PropertyChangedEventArgs E ) => TypedCallback(S.AsNotNull<T>(), E);
+        Base.PropertyChanged += PropertyChanged;
+    }
+
+    /// <summary>
+    /// <see cref="PropertyChanged"/> event listener with a known value type.
+    /// </summary>
+    /// <typeparam name="T">The type of the sender.</typeparam>
+    /// <param name="Sender">The sender.</param>
+    /// <param name="E">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+    public delegate void PropertyChanged<in T>( T Sender, PropertyChangedEventArgs E ) where T : INotifyPropertyChanged;
+
+    /// <summary>
+    /// Registers a <see cref="INotifyPropertyChanged.PropertyChanged"/> listener with a known type.
+    /// </summary>
+    /// <typeparam name="T">The base type.</typeparam>
+    /// <param name="Base">The base.</param>
+    /// <param name="Callback">The callback.</param>
+    public static void RegisterPropertyChangedCallback<T>( this T Base, SimplePropertyChanged Callback ) where T : INotifyPropertyChanged {
+        void PropertyChanged( object? S, PropertyChangedEventArgs E ) => Callback(E);
+        Base.PropertyChanged += PropertyChanged;
+    }
+
+    /// <summary>
+    /// <see cref="PropertyChanged"/> event listener with a known value type.
+    /// </summary>
+    /// <param name="E">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
+    public delegate void SimplePropertyChanged( PropertyChangedEventArgs E );
 }

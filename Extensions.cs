@@ -14,7 +14,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace DirLink;
@@ -144,4 +143,26 @@ public static class Extensions {
             Keyboard.ClearFocus();
         }
     }
+
+    /// <summary>
+    /// Returns one of two options depending on whether the given value is <see langword="null"/> or not.
+    /// </summary>
+    /// <typeparam name="TIn">The type of the input.</typeparam>
+    /// <typeparam name="TOut">The type of the output.</typeparam>
+    /// <param name="Input">The input.</param>
+    /// <param name="Default">The default method to invoke with <paramref name="Input"/> when <b>not</b> <see langword="null"/>.</param>
+    /// <param name="Fallback">The fallback value to return when <paramref name="Input"/> is <see langword="null"/>.</param>
+    /// <returns><paramref name="Default"/> when not <see langword="null"/>; otherwise <paramref name="Fallback"/>.</returns>
+    public static TOut With<TIn, TOut>( this TIn? Input, Func<TIn, TOut> Default, TOut Fallback ) => Input is { } In ? Default(In) : Fallback;
+
+    /// <summary>
+    /// Returns one of two options depending on whether the given value is <see langword="null"/> or not.
+    /// </summary>
+    /// <typeparam name="TIn">The type of the input.</typeparam>
+    /// <typeparam name="TOut">The type of the output.</typeparam>
+    /// <param name="Input">The input.</param>
+    /// <param name="Default">The default method to invoke with <paramref name="Input"/> when <b>not</b> <see langword="null"/>.</param>
+    /// <param name="Fallback">The fallback value to return when <paramref name="Input"/> is <see langword="null"/>.</param>
+    /// <returns><paramref name="Default"/> when not <see langword="null"/>; otherwise <paramref name="Fallback"/>.</returns>
+    public static TOut With<TIn, TOut>( this TIn? Input, Func<TIn, TOut> Default, TOut Fallback ) where TIn : struct => Input is { } In ? Default(In) : Fallback;
 }

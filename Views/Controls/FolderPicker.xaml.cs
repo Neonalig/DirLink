@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -67,11 +66,11 @@ public partial class FolderPicker {
     /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
     static void UserTextPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) {
-        Debug.WriteLine($"UserText changed on {S} to '{NewValue}'. Internal? {S._SetValueInternal}.");
-        if ( S._SetValueInternal ) { return; }
-        S._SetValueInternal = true;
-        S.Path = TryGetFolder(NewValue, out DirectoryInfo? DI).Return(DI);
-        S._SetValueInternal = false;
+        if ( !S._SetValueInternal ) {
+            S._SetValueInternal = true;
+            S.Path = TryGetFolder(NewValue, out DirectoryInfo? DI).Return(DI);
+            S._SetValueInternal = false;
+        }
         S.OnUserTextChanged(S, E, OldValue, NewValue);
     }
 
@@ -114,11 +113,11 @@ public partial class FolderPicker {
     /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
     static void PathPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, DirectoryInfo? OldValue, DirectoryInfo? NewValue ) {
-        Debug.WriteLine($"Path changed on {S} to '{NewValue?.FullName ?? "<null>"}'. Internal? {S._SetValueInternal}.");
-        if ( S._SetValueInternal ) { return; }
-        S._SetValueInternal = true;
-        S.UserText = NewValue?.FullName ?? string.Empty;
-        S._SetValueInternal = false;
+        if ( !S._SetValueInternal ) {
+            S._SetValueInternal = true;
+            S.UserText = NewValue?.FullName ?? string.Empty;
+            S._SetValueInternal = false;
+        }
         S.OnPathChanged(S, E, OldValue, NewValue);
     }
 
