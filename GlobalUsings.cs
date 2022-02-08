@@ -6,14 +6,13 @@
 // More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
 #endregion
 
-namespace DirLink.ViewModels;
+#region Using Directives
 
-public interface IMirrorLinkView {
-    /// <summary>
-    /// Gets the text to display.
-    /// </summary>
-    /// <value>
-    /// The text to display.
-    /// </value>
-    string Display { get; }
-}
+global using System.Diagnostics;
+global using System.Diagnostics.CodeAnalysis;
+global using JetBrains.Annotations;
+global using System.Collections.Generic;
+
+global using NotNullAttribute = System.Diagnostics.CodeAnalysis.NotNullAttribute;
+
+#endregion

@@ -1,7 +1,15 @@
-﻿using System.Collections.ObjectModel;
+﻿#region Copyright (C) 2017-2022  Starflash Studios
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License (Version 3.0)
+// as published by the Free Software Foundation.
+// 
+// More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
+#endregion
+
+#region Using Directives
+
+using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,13 +17,11 @@ using System.Windows.Media;
 
 using DirLink.Views.Pages;
 
-using JetBrains.Annotations;
-
 using WPFUI.Controls.Interfaces;
 
-using DependsOnAttribute = PropertyChanged.DependsOnAttribute;
+#endregion
 
-namespace DirLink;
+namespace DirLink.Views.Windows;
 
 /// <summary>
 /// Interaction logic for MainWindow.xaml
@@ -28,8 +34,25 @@ public partial class MainWindow : INotifyPropertyChanged {
         Bd.Background = Background;
         Background = new SolidColorBrush(new Color { R = 0, G = 0, B = 0, A = 0 });
 
-        //Nav.Items = LinkerPageNavItems;
+        SizeChanged += MainWindow_SizeChanged;
+        RemakeBorderClip();
     }
+
+    /// <summary>
+    /// Occurs when the <see cref="FrameworkElement.SizeChanged"/> <see langword="event"/> is raised.
+    /// </summary>
+    /// <param name="Sender">The source of the <see langword="event"/>.</param>
+    /// <param name="E">The raised <see langword="event"/> arguments.</param>
+    void MainWindow_SizeChanged( object Sender, SizeChangedEventArgs E ) {
+        if (E.WidthChanged || E.HeightChanged) {
+            RemakeBorderClip();
+        }
+    }
+
+    /// <summary>
+    /// Remakes the <see cref="BorderClip"/> property with the new window size.
+    /// </summary>
+    void RemakeBorderClip() => BorderClip = new Rect(0, 0, Width, Height);
 
     /// <summary>
     /// Gets or sets the <see cref="Border"/>'s clip path in the window.
@@ -37,14 +60,7 @@ public partial class MainWindow : INotifyPropertyChanged {
     /// <value>
     /// The <see cref="Border"/>'s clip path.
     /// </value>
-    [DependsOn(nameof(Width), nameof(Height))]
-    public Rect BorderClip {
-        get => new Rect(0, 0, Width, Height);
-        set {
-            Width = value.Width;
-            Height = value.Height;
-        }
-    }
+    public Rect BorderClip { get; set; }
 
     /// <summary>
     /// Gets the navigation items for pre-existing linkers.

@@ -1,20 +1,19 @@
 ﻿#region Copyright (C) 2017-2022  Starflash Studios
-
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License (Version 3.0)
 // as published by the Free Software Foundation.
 // 
 // More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
-
 #endregion
 
+#region Using Directives
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
+
+#endregion
 
 namespace DirLink;
 
@@ -58,7 +57,7 @@ public static class Extensions {
     /// <param name="Item">The item.</param>
     /// <param name="ItemName">The name of the item.</param>
     /// <exception cref="ArgumentNullException">The specified argument was null.</exception>
-    [DebuggerHidden, DebuggerStepThrough]
+    [ DebuggerHidden][ DebuggerStepThrough]
     public static void ThrowIfNull<T>( [NotNull] this T? Item, [CallerArgumentExpression("Item")] string? ItemName = null ) {
         if ( Item is null ) {
             ThrowIfTrue(true, () => new ArgumentNullException(ItemName, ItemName is { } IN ? $"The specified argument ({IN}) was null." : "The specified argument was null."));
@@ -73,7 +72,7 @@ public static class Extensions {
     /// <param name="ItemName">The name of the item.</param>
     /// <returns>The same <paramref name="Item"/> if not <see langword="null"/>.</returns>
     /// <exception cref="ArgumentNullException">The specified argument was null.</exception>
-    [DebuggerHidden, DebuggerStepThrough]
+    [ DebuggerHidden][ DebuggerStepThrough]
     [return: NotNull]
     public static T CatchNull<T>( [NotNull] this T? Item, [CallerArgumentExpression("Item")] string? ItemName = null ) {
         if ( Item is null ) {
@@ -110,7 +109,7 @@ public static class Extensions {
     /// <param name="ItemName">The name of the item.</param>
     /// <returns>The cast item.</returns>
     /// <exception cref="ArgumentNullException">The specified argument was null, or could not be cast.</exception>
-    [DebuggerHidden, DebuggerStepThrough]
+    [ DebuggerHidden][ DebuggerStepThrough]
     [return: NotNull]
     public static TOut AsNotNull<TOut>( [NotNull] this object? Item, [CallerArgumentExpression("Item")] string? ItemName = null ) {
         if ( Item is not TOut Out ) {
@@ -165,4 +164,140 @@ public static class Extensions {
     /// <param name="Fallback">The fallback value to return when <paramref name="Input"/> is <see langword="null"/>.</param>
     /// <returns><paramref name="Default"/> when not <see langword="null"/>; otherwise <paramref name="Fallback"/>.</returns>
     public static TOut With<TIn, TOut>( this TIn? Input, Func<TIn, TOut> Default, TOut Fallback ) where TIn : struct => Input is { } In ? Default(In) : Fallback;
+
+    /// <summary>
+    /// Attempts to grab the specified amount of items, returning early if the collection is too small.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="MaxCount">The maximum amount of items to return.</param>
+    /// <returns>Up to 'n' amount of items from the given collections.</returns>
+    public static IEnumerable<T> Grab<T>(this IEnumerable<T> Enum, int MaxCount ) {
+        int I = 0;
+        // ReSharper disable once LoopCanBePartlyConvertedToQuery
+        foreach ( T Item in Enum ) {
+            if (I >= MaxCount ) { yield break; }
+            yield return Item;
+            I++;
+        }
+    }
+
+    /// <summary>
+    /// Selects all items in the collection, converting them where necessary.
+    /// </summary>
+    /// <typeparam name="TIn">The type of the input.</typeparam>
+    /// <typeparam name="TOut">The type of the output.</typeparam>
+    /// <param name="Enum">The enum.</param>
+    /// <param name="Conversion">The conversion.</param>
+    /// <returns>The collection with the <paramref name="Conversion"/> applied to each item.</returns>
+    public static IEnumerable<TOut> Select<TIn, TOut>(this IEnumerable<TIn> Enum, Func<TIn, TOut> Conversion ) {
+        foreach ( TIn Item in Enum ) {
+            yield return Conversion.Invoke(Item);
+        }
+    }
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Count">The maximum amount of items to iterate. If the collection is smaller, then only those items will be logged.</param>
+    /// <param name="Separator">The separator text between items.</param>
+    /// <param name="ToString">The method to invoke to convert the object to a <see cref="string"/> representation.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, int Count, string Separator, Func<T, string> ToString ) => Log(Enum.Grab(Count), Separator, ToString);
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Count">The maximum amount of items to iterate. If the collection is smaller, then only those items will be logged.</param>
+    /// <param name="ToString">The method to invoke to convert the object to a <see cref="string"/> representation.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, int Count, Func<T, string> ToString ) => $"'{Log(Enum, Count, "', '", ToString)}'";
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Separator">The separator text between items.</param>
+    /// <param name="ToString">The method to invoke to convert the object to a <see cref="string"/> representation.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, string Separator, Func<T, string> ToString ) => string.Join(Separator, Enum.Select(ToString));
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="ToString">The method to invoke to convert the object to a <see cref="string"/> representation.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, Func<T, string> ToString ) => $"'{Log(Enum, "', '", ToString)}'";
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Count">The maximum amount of items to iterate. If the collection is smaller, then only those items will be logged.</param>
+    /// <param name="Separator">The separator text between items.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, int Count, string Separator ) => Log(Enum.Grab(Count), Separator);
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Count">The maximum amount of items to iterate. If the collection is smaller, then only those items will be logged.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, int Count ) => $"'{Log(Enum, Count, "', '")}'";
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <param name="Separator">The separator text between items.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum, string Separator) => string.Join(Separator, Enum.Select(Item => Item!.ToString()));
+
+    /// <summary>
+    /// Logs at most the specified count of items from the collection.
+    /// </summary>
+    /// <typeparam name="T">The collection containing type.</typeparam>
+    /// <param name="Enum">The collection to iterate.</param>
+    /// <returns>A <see cref="string"/> representation of the collection.</returns>
+    public static string Log<T>( [ItemNotNull] this IEnumerable<T> Enum) => $"'{Log(Enum, "', '")}'";
+
+    /// <inheritdoc cref="string.TrimEnd(char)"/>
+    /// <param name="String">The string to trim.</param>
+    /// <param name="Trim">The text to remove from the end of the string.</param>
+    public static string TrimEnd( this string String, string Trim ) {
+        int L = Trim.Length;
+        while ( String.EndsWith(Trim) ) {
+            String = String[..^L];
+        }
+        return String;
+    }
+
+    /// <summary>
+    /// Performs the modification on all items in the collection, returning a new collection of equal length.
+    /// </summary>
+    /// <typeparam name="TIn">The type of the input.</typeparam>
+    /// <typeparam name="TOut">The type of the output.</typeparam>
+    /// <param name="List">The input array.</param>
+    /// <param name="Func">The function.</param>
+    /// <returns>The modified values.</returns>
+    public static TOut[] Select<TIn, TOut>( this IList<TIn> List, Func<TIn, TOut> Func ) {
+        int L = List.Count;
+        TOut[] Result = new TOut[L];
+        for ( int I = 0; I < L; I++ ) {
+            Result[I] = Func(List[I]);
+        }
+        return Result;
+    }
+
 }

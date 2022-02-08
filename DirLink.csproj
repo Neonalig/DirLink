@@ -10,12 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Lib\**" />
     <Compile Remove="MVVMUtils\**" />
     <Compile Remove="wpfui\**" />
+    <EmbeddedResource Remove="Lib\**" />
     <EmbeddedResource Remove="MVVMUtils\**" />
     <EmbeddedResource Remove="wpfui\**" />
+    <None Remove="Lib\**" />
     <None Remove="MVVMUtils\**" />
     <None Remove="wpfui\**" />
+    <Page Remove="Lib\**" />
     <Page Remove="MVVMUtils\**" />
     <Page Remove="wpfui\**" />
   </ItemGroup>
@@ -27,12 +31,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0" />
+    <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
     <PackageReference Include="PropertyChanged.Fody" Version="3.4.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="MVVMUtils\MVVMUtils.csproj" />
     <ProjectReference Include="wpfui\WPFUI\WPFUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Ookii.Dialogs.Wpf">
+      <HintPath>Lib\Ookii.Dialogs.Wpf.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

@@ -1,7 +1,19 @@
-﻿using System.Globalization;
+﻿#region Copyright (C) 2017-2022  Starflash Studios
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License (Version 3.0)
+// as published by the Free Software Foundation.
+// 
+// More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
+#endregion
+
+#region Using Directives
+
+using System.Globalization;
 using System.IO;
 
 using MVVMUtils;
+
+#endregion
 
 namespace DirLink.Converters;
 
@@ -9,7 +21,7 @@ namespace DirLink.Converters;
 /// Provides value conversions from <typeparamref name="T"/> to <see cref="string"/>.
 /// </summary>
 /// <typeparam name="T">The <see cref="FileSystemInfo"/> to convert from/to.</typeparam>
-/// <seealso cref="ValueConverter{TFrom, TTo}"/>
+/// <seealso cref="ValueConverter{TFrom,TTo}"/>
 public abstract class FileSystemInfoToStringConverterBase<T> : ValueConverter<T, string> where T : FileSystemInfo {
     /// <summary>
     /// Gets or sets a value indicating whether to return <see cref="FileSystemInfo.FullName"/> or <see cref="FileSystemInfo.Name"/>.

@@ -1,17 +1,23 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿#region Copyright (C) 2017-2022  Starflash Studios
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License (Version 3.0)
+// as published by the Free Software Foundation.
+// 
+// More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
+#endregion
+
+#region Using Directives
+
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 
 using DirLink.Views.Controls;
 
-using JetBrains.Annotations;
-
 using MVVMUtils;
+
+#endregion
 
 namespace DirLink.Views.Pages;
 /// <summary>
@@ -39,7 +45,6 @@ public partial class LinkerCreatorPage : INotifyPropertyChanged {
     /// </value>
     public string? DestCEHeader { get; private set; } = "Pick a destination";
 
-
     /// <summary>
     /// Occurs when <see cref="FolderPicker.PathChanged"/> is raised.
     /// </summary>
@@ -62,4 +67,8 @@ public partial class LinkerCreatorPage : INotifyPropertyChanged {
     /// <param name="PropertyName">The name of the property.</param>
     [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged( [CallerMemberName] string? PropertyName = null ) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+
+    void FilePicker_PathChanged( FilePicker S, FileInfo NewValue ) {
+        Debug.WriteLine($"PathChanged to {NewValue} on {S}/{S.GetParents().Log(5)}.");
+    }
 }

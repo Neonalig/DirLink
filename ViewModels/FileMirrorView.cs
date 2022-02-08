@@ -1,17 +1,21 @@
 ﻿#region Copyright (C) 2017-2022  Starflash Studios
-
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License (Version 3.0)
 // as published by the Free Software Foundation.
 // 
 // More information can be found here: https://www.gnu.org/licenses/gpl-3.0.en.html
-
 #endregion
+
+#region Using Directives
 
 using System.ComponentModel;
 using System.IO;
 
-namespace DirLink.Views.Pages;
+using DirLink.Models;
+
+#endregion
+
+namespace DirLink.ViewModels;
 
 public class FileMirrorView : MirrorLinkView<FileMirror> {
 
@@ -22,6 +26,7 @@ public class FileMirrorView : MirrorLinkView<FileMirror> {
     /// </summary>
     /// <param name="E">The <see cref="PropertyChangedEventArgs"/> instance containing the event data.</param>
     void FileMirrorView_PropertyChanged( PropertyChangedEventArgs E ) {
+        Debug.WriteLine("Prop changed.");
         // ReSharper disable once ConvertSwitchStatementToSwitchExpression
         switch ( E.PropertyName ) {
             case nameof(Path):

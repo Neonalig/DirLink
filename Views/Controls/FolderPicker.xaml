@@ -15,16 +15,29 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <TextBox
+        <!--  <ScrollViewer  -->
+        <!--
             Grid.Column="0"
+            HorizontalScrollBarVisibility="Auto"
+            VerticalScrollBarVisibility="Disabled">
+        -->
+        <ctrl:TextBoxNonResizable
+            Grid.Column="0"
+            Margin="0,0,5,0"
+            d:Text="MMMMMMMMMMMMMMMMMMMMMMMMM"
             KeyDown="TextBox_KeyDown"
             PreviewKeyDown="TextBox_PreviewKeyDown"
-            Text="{Binding UserText, Mode=TwoWay}" />
+            Text="{Binding UserText, Mode=TwoWay}">
+            <ctrl:TextBoxNonResizable.Style>
+                <Style BasedOn="{StaticResource {x:Type TextBox}}" TargetType="{x:Type TextBox}" />
+            </ctrl:TextBoxNonResizable.Style>
+        </ctrl:TextBoxNonResizable>
+        <!--</ScrollViewer>-->
         <Button Grid.Column="1" VerticalAlignment="Stretch">
             <Button.Content>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Margin="0,0,5,0" Text="Browse" />
-                    <controls:Icon Glyph="Folder48" />
+                    <controls:Icon VerticalContentAlignment="Center" Glyph="Folder48" />
                 </StackPanel>
             </Button.Content>
         </Button>

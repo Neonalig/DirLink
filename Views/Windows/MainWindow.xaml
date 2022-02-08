@@ -1,19 +1,20 @@
 ﻿<Window
-    x:Class="DirLink.MainWindow"
+    x:Class="DirLink.Views.Windows.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:dirLink="clr-namespace:DirLink"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:windows="clr-namespace:DirLink.Views.Windows"
     xmlns:wpfui="clr-namespace:WPFUI.Controls;assembly=WPFUI"
     Title="DirLink"
     Width="800"
     Height="450"
     d:Background="Transparent"
-    d:DataContext="{d:DesignInstance dirLink:MainWindow}"
+    d:DataContext="{d:DesignInstance windows:MainWindow}"
     AllowsTransparency="True"
     Icon="/Resources/Icon.ico"
     Style="{StaticResource UiWindowRounded}"
+    WindowStartupLocation="CenterScreen"
     WindowStyle="None"
     mc:Ignorable="d">
     <Border

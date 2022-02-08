@@ -8,14 +8,19 @@
 
 #region Using Directives
 
-using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Controls;
 
 #endregion
 
-namespace DirLink;
+namespace DirLink.Views.Controls;
+
 /// <summary>
-/// Interaction logic for App.xaml
+/// Implementation of <see cref="TextBox"/> with <see cref="MeasureOverride(Size)"/> overwritten to disable dynamic width expansion.
 /// </summary>
-public partial class App : Application {
+/// <seealso cref="TextBox" />
+public class TextBoxNonResizable : TextBox {
+    protected override Size MeasureOverride( Size Constraint ) => _Zero;
+
+    static readonly Size _Zero = new Size(0, 0);
 }
