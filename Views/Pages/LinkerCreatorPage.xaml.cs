@@ -11,11 +11,14 @@
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Windows;
+using System.Windows.Controls;
 
+using DirLink.ViewModels;
 using DirLink.Views.Controls;
 
 using MVVMUtils;
+
+using PropertyChanged;
 
 #endregion
 
@@ -43,18 +46,17 @@ public partial class LinkerCreatorPage : INotifyPropertyChanged {
     /// <value>
     /// The header for <see cref="DestCE"/>.
     /// </value>
-    public string? DestCEHeader { get; private set; } = "Pick a destination";
+    [DependsOn(nameof(Destination))]
+    public string DestCEHeader => Destination.With(Dir => $"Destination: {Dir.Name}", "Pick a destination");
 
     /// <summary>
     /// Occurs when <see cref="FolderPicker.PathChanged"/> is raised.
     /// </summary>
-    /// <param name="D">The <see cref="FolderPicker"/> dependency object.</param>
-    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
-    /// <param name="OldValue">The old value.</param>
+    /// <param name="Sender">The <see cref="FolderPicker"/> dependency object.</param>
     /// <param name="NewValue">The new value.</param>
     [SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Member is on the event invocation list.")]
-    //[SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Member is an event handler")]
-    void FolderPicker_PathChanged( FolderPicker D, DependencyPropertyChangedEventArgs E, DirectoryInfo OldValue, DirectoryInfo? NewValue ) => DestCEHeader = NewValue.With(Dir => $"Destination: {Dir.Name}", "Pick a destination");
+    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Member is an event handler")]
+    void FolderPicker_PathChanged( FolderPicker Sender, DirectoryInfo? NewValue ) => Destination = NewValue;
 
     /// <summary>
     /// Occurs when a property value changes.
@@ -68,7 +70,15 @@ public partial class LinkerCreatorPage : INotifyPropertyChanged {
     [NotifyPropertyChangedInvocator]
     protected virtual void OnPropertyChanged( [CallerMemberName] string? PropertyName = null ) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
 
-    void FilePicker_PathChanged( FilePicker S, FileInfo NewValue ) {
-        Debug.WriteLine($"PathChanged to {NewValue} on {S}/{S.GetParents().Log(5)}.");
+    void FileMirrorView_Templated_FilePicker_PathChanged( FilePicker S, FileInfo NewValue ) {
+        Debug.WriteLine($"PCH in {S}/{S.GetParents().Log(5)}");
+        FileMirrorView FMV = (FileMirrorView)((ContentPresenter)S.TemplatedParent).Content;
+        FMV.Path = NewValue;
+    }
+
+    void DirectoryMirrorView_Templated_FolderPicker_PathChanged( FolderPicker S, DirectoryInfo NewValue ) {
+        Debug.WriteLine($"PCH in {S}/{S.GetParents().Log(5)}");
+        DirectoryMirrorView DMV = (DirectoryMirrorView)((ContentPresenter)S.TemplatedParent).Content;
+        DMV.Path = NewValue;
     }
 }

@@ -13,6 +13,8 @@ using System.IO;
 
 using DirLink.Models;
 
+using PropertyChanged;
+
 #endregion
 
 namespace DirLink.ViewModels;
@@ -43,15 +45,22 @@ public class FileMirrorView : MirrorLinkView<FileMirror> {
         }
     }
 
-    /// <inheritdoc />
-    public override string Display => Model.With(FM => $"File: {FM.File.Name}", "Please enter a file path.");
+    string Int_Display { get; set; } = "Please enter a file path.";
 
-    /// <summary>
-    /// Gets or sets the path to mirror.
-    /// </summary>
-    /// <value>
-    /// The path to mirror.
-    /// </value>
-    public FileInfo? Path { get; set; }
+    /// <inheritdoc />
+    [DependsOn(nameof(Int_Display))]
+    public override string Display => Int_Display;
+
+    FileInfo? Int_Path { get; set; }
+
+    /// <inheritdoc cref="FileMirror.File"/>
+    [DependsOn(nameof(Int_Path))]
+    public FileInfo? Path {
+        get => Int_Path;
+        set {
+            Int_Path = value;
+            Int_Display = Model.With(FM => $"File: {FM.File.Name}", "Please enter a file path.");
+        }
+    }
 
 }

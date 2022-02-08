@@ -8,35 +8,50 @@
 
 #region Using Directives
 
+using System;
+using System.ComponentModel;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
+using Ookii.Dialogs.Wpf;
+
+using PropertyChanged;
+
 #endregion
 
 namespace DirLink.Views.Controls;
+
 /// <summary>
-/// Interaction logic for FolderSystemInfoPicker.xaml
+/// Interaction logic for FolderPicker.xaml
 /// </summary>
-public partial class FolderPicker {
+public partial class FolderPicker : INotifyPropertyChanged {
     public FolderPicker() {
         InitializeComponent();
         DataContext = this;
+        this.RegisterPropertyChangedCallback(( S, E ) => {
+            switch ( E.PropertyName ) {
+                case nameof(Path):
+                    S.OnPathChanged(S, S.Path);
+                    break;
+            }
+        });
     }
 
     /// <summary>
     /// Attempts to get a <see cref="DirectoryInfo"/> instance pointing at the specified <paramref name="Path"/>, returning <see langword="true"/> if successful.
     /// </summary>
     /// <param name="Path">The path.</param>
-    /// <param name="Folder">The folder.</param>
+    /// <param name="Directory">The f.</param>
     /// <returns><see langword="true"/> if successful; otherwise <see langword="false"/>.</returns>
-    static bool TryGetFolder( string Path, [NotNullWhen(true)] out DirectoryInfo? Folder ) {
+    static bool TryGetDirectory( string Path, [NotNullWhen(true)] out DirectoryInfo? Directory ) {
         try {
-            Folder = new DirectoryInfo(Path);
+            Directory = new DirectoryInfo(Path);
             return true;
         } catch {
-            Folder = null;
+            Directory = null;
             return false;
         }
     }
@@ -64,11 +79,6 @@ public partial class FolderPicker {
     //DependencyProperty.Register(nameof(UserText), typeof(string), typeof(FolderPicker), new PropertyMetadata(string.Empty));
 
     /// <summary>
-    /// Whether to ignore the next PropertyChanged callback as it occurred from an internal value synchronisation.
-    /// </summary>
-    bool _SetValueInternal = false;
-
-    /// <summary>
     /// Raised when the <see cref="UserTextProperty"/> value is changed.
     /// </summary>
     /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
@@ -76,11 +86,8 @@ public partial class FolderPicker {
     /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
     static void UserTextPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) {
-        if ( !S._SetValueInternal ) {
-            S._SetValueInternal = true;
-            S.Path = TryGetFolder(NewValue, out DirectoryInfo? DI).Return(DI);
-            S._SetValueInternal = false;
-        }
+        Debug.WriteLine("UserText was changed.");
+        S.Path = TryGetDirectory(NewValue, out DirectoryInfo? DI).Return(DI);
         S.OnUserTextChanged(S, E, OldValue, NewValue);
     }
 
@@ -91,7 +98,10 @@ public partial class FolderPicker {
     /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
     /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
-    protected virtual void OnUserTextChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) => UserTextChanged?.Invoke(S, E, OldValue, NewValue);
+    [SuppressPropertyChangedWarnings] protected virtual void OnUserTextChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, string OldValue, string NewValue ) => UserTextChanged?.Invoke(S, E, OldValue, NewValue);
+
+    public delegate void PathChangedEvent( FolderPicker S, DirectoryInfo? NewValue );
+    public event PathChangedEvent? PathChanged;
 
     /// <summary>
     /// Gets or sets the path.
@@ -99,46 +109,14 @@ public partial class FolderPicker {
     /// <value>
     /// The path.
     /// </value>
-    public DirectoryInfo? Path {
-        get => (DirectoryInfo?)GetValue(PathProperty);
-        set => SetValue(PathProperty, value);
-    }
-
-    /// <summary>
-    /// Occurs when the <see cref="Path"/> property is changed.
-    /// </summary>
-    public event CtoHelper.DependencyPropertyChangedCallback<FolderPicker, DirectoryInfo?>? PathChanged;
-
-    /// <summary>
-    /// Dependency property for <see cref="Path"/>.
-    /// </summary>
-    public static readonly DependencyProperty PathProperty = CtoHelper.RegisterDependencyProperty<FolderPicker, DirectoryInfo?>(nameof(Path), null, PathPropertyChanged);
-    //DependencyProperty.Register(nameof(Path), typeof(DirectoryInfo), typeof(FolderPicker), new PropertyMetadata(null));
-
-    /// <summary>
-    /// Raised when the <see cref="PathProperty"/> value is changed.
-    /// </summary>
-    /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
-    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
-    /// <param name="OldValue">The old value.</param>
-    /// <param name="NewValue">The new value.</param>
-    static void PathPropertyChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, DirectoryInfo? OldValue, DirectoryInfo? NewValue ) {
-        if ( !S._SetValueInternal ) {
-            S._SetValueInternal = true;
-            S.UserText = NewValue?.FullName ?? string.Empty;
-            S._SetValueInternal = false;
-        }
-        S.OnPathChanged(S, E, OldValue, NewValue);
-    }
+    public DirectoryInfo? Path { get; private set; }
 
     /// <summary>
     /// Called when the <see cref="Path"/> property is changed.
     /// </summary>
     /// <param name="S">The <see cref="FolderPicker"/> dependency object.</param>
-    /// <param name="E">The <see cref="DependencyPropertyChangedEventArgs"/> instance containing the event data.</param>
-    /// <param name="OldValue">The old value.</param>
     /// <param name="NewValue">The new value.</param>
-    protected virtual void OnPathChanged( FolderPicker S, DependencyPropertyChangedEventArgs E, DirectoryInfo? OldValue, DirectoryInfo? NewValue ) => PathChanged?.Invoke(S, E, OldValue, NewValue);
+    [SuppressPropertyChangedWarnings] protected virtual void OnPathChanged( FolderPicker S, DirectoryInfo? NewValue ) => PathChanged?.Invoke(S, NewValue);
 
     /// <summary>
     /// Occurs when the <see cref="UIElement.KeyDown"/> <see langword="event"/> is raised.
@@ -172,4 +150,74 @@ public partial class FolderPicker {
         }
 
     }
+
+    /// <summary>
+    /// Occurs when a property value changes.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Called when a property value is changed.
+    /// </summary>
+    /// <param name="PropertyName">The name of the property.</param>
+    [NotifyPropertyChangedInvocator]
+    protected virtual void OnPropertyChanged( [CallerMemberName] string? PropertyName = null ) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(PropertyName));
+
+    /// <summary>
+    /// Occurs when the <see cref="Button.Click"/> <see langword="event"/> is raised.
+    /// <br/> Opens a folder browser dialog, allowing the user to quickly select a folder via the windows default folder picker UI.
+    /// </summary>
+    /// <param name="Sender">The source of the <see langword="event"/>.</param>
+    /// <param name="E">The raised <see langword="event"/> arguments.</param>
+    void Button_Click( object Sender, RoutedEventArgs E ) {
+        if ( BrowseDialogOpen ) { return; }
+        BrowseDialogOpen = true;
+
+        VistaFolderBrowserDialog Diag = new VistaFolderBrowserDialog {
+            Description = "Pick a folder...",
+            Multiselect = false,
+            SelectedPath = UserText,
+            UseDescriptionForTitle = true,
+            ShowNewFolderButton = ShowNewFolderButton,
+            RootFolder = InitialDirectory
+        };
+
+        if ( Diag.ShowDialog() == true ) {
+            UserText = Diag.SelectedPath;
+        }
+
+        BrowseDialogOpen = false;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to show the 'New Folder' button on the folder browser dialog when the browse button is pressed.
+    /// </summary>
+    /// <value>
+    /// <see langword="true" /> if the 'New Folder' button is shown in <see cref="VistaFolderBrowserDialog"/>s; otherwise, <see langword="false" />.
+    /// </value>
+    public bool ShowNewFolderButton { get; set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the folder browser dialog is currently open. If <see langword="true"/>, user interaction with other components is temporarily disabled.
+    /// </summary>
+    /// <value>
+    ///  see langword="true" /> if a <see cref="VistaFolderBrowserDialog"/> is currently shown; otherwise, <see langword="false" />.
+    /// </value>
+    public bool BrowseDialogOpen { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to allow read-only folders to be selected.
+    /// </summary>
+    /// <value>
+    /// <see langword="true" /> if read-only folders are allowed; otherwise, <see langword="false" />.
+    /// </value>
+    public bool AllowReadOnly { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the initial directory when restoration is unavailable (the dialog is opened for the first time).
+    /// </summary>
+    /// <value>
+    /// The initial directory.
+    /// </value>
+    public Environment.SpecialFolder InitialDirectory { get; set; } = Environment.SpecialFolder.Desktop;
 }

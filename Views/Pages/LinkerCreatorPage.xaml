@@ -26,7 +26,7 @@
             Margin="2"
             d:Header="Pick a destination"
             Header="{Binding DestCEHeader, Mode=OneWay}">
-            <ctrl:FolderPicker Path="{Binding Destination, Mode=TwoWay}" PathChanged="FolderPicker_PathChanged" />
+            <ctrl:FolderPicker PathChanged="FolderPicker_PathChanged" />
         </controls:CardExpander>
         <controls:Card Grid.Row="2" VerticalAlignment="Top">
             <StackPanel Orientation="Vertical">
@@ -47,12 +47,15 @@
                     </ListBox.ItemTemplate>-->
                     <ListBox.Resources>
                         <DataTemplate DataType="{x:Type viewModels:FileMirrorView}">
-                            <ctrl:FilePicker PathChanged="FilePicker_PathChanged" />
+                            <ctrl:FilePicker d:DataContext="{d:DesignInstance viewModels:FileMirrorView}" PathChanged="FileMirrorView_Templated_FilePicker_PathChanged" />
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type viewModels:DirectoryMirrorView}">
-                            <controls:CardExpander Header="{Binding Display, Mode=OneWay}">
+                            <controls:CardExpander
+                                d:DataContext="{d:DesignInstance viewModels:DirectoryMirrorView}"
+                                d:Header="Please enter a folder path."
+                                Header="{Binding Display, Mode=OneWay}">
                                 <StackPanel Orientation="Vertical">
-                                    <ctrl:FolderPicker Path="{Binding Path, Mode=TwoWay}" />
+                                    <ctrl:FolderPicker PathChanged="DirectoryMirrorView_Templated_FolderPicker_PathChanged" />
                                     <Grid Margin="10,0,0,0" Opacity="0.5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
