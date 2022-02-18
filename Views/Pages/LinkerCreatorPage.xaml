@@ -47,7 +47,8 @@
                     </ListBox.ItemTemplate>-->
                     <ListBox.Resources>
                         <DataTemplate DataType="{x:Type viewModels:FileMirrorView}">
-                            <ctrl:FilePicker d:DataContext="{d:DesignInstance viewModels:FileMirrorView}" PathChanged="FileMirrorView_Templated_FilePicker_PathChanged" />
+                            <ctrl:FilePicker d:DataContext="{d:DesignInstance viewModels:FileMirrorView}"
+                                             PathChanged="FileMirrorView_Templated_FilePicker_PathChanged" />
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type viewModels:DirectoryMirrorView}">
                             <controls:CardExpander
@@ -55,14 +56,16 @@
                                 d:Header="Please enter a folder path."
                                 Header="{Binding Display, Mode=OneWay}">
                                 <StackPanel Orientation="Vertical">
-                                    <ctrl:FolderPicker PathChanged="DirectoryMirrorView_Templated_FolderPicker_PathChanged" />
+                                    <ctrl:FolderPicker
+                                        PathChanged="DirectoryMirrorView_Templated_FolderPicker_PathChanged" />
                                     <Grid Margin="10,0,0,0" Opacity="0.5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="Only Children?" />
-                                        <controls:ToggleSwitch Grid.Column="1" IsChecked="{Binding OnlyChildren, Mode=TwoWay}" />
+                                        <controls:ToggleSwitch Grid.Column="1"
+                                                               IsChecked="{Binding OnlyChildren, Mode=TwoWay}" />
                                     </Grid>
                                 </StackPanel>
                             </controls:CardExpander>
